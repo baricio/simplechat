@@ -4,6 +4,7 @@
   "description": "Real time web chat",
   "dependencies": {
     "express": "^4.10.2",
+    "node-base64-image": "^0.1.2",
     "socket.io": "^1.4.6"
   },
   "author": "Fabricio"

@@ -43,6 +43,8 @@
     </style>
 </head>
 <body>
+<script src="js/facebook.sdk.js"></script>
+<script src="js/facebook.login.js"></script>
 
 <div id="boxmessage" style="display:none">
     <ul id="messages"></ul>
@@ -55,18 +57,18 @@
     <form id="form_login" action="">
         <label>Apelido</label>
         <input id="nick" name="nick" autocomplete="off" />
-        <button>Entrar</button>
+        <button>Login com facebook</button>
     </form>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
+    var user = {session:'',id:'',name:'',avatar:''}
     var socket = io();
 
     $('#form_message').submit(function(){
         socket.emit('message', {
-            nick: $('#nick').val(),
             message: $('#m').val()
         });
 
@@ -74,21 +76,32 @@
         return false;
     });
 
+    socket.on('current_user', function(session){
+        user.session = session;
+        console.log(user);
+    });
+
     socket.on('message', function(msg){
-        $('#messages').append($('<li>').text(msg));
+        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + user.avatar +'">';
+        $('#messages').append($('<li>').html(img + user.name + ' diz: ' + msg));
     });
 
     $('#boxlogin').submit(function(){
-        socket.emit('login', $(this).find('input').val());
-        $(this).hide('fast');
-        $('#boxmessage').show('fast');
+        Login();
         return false;
     });
 
-    socket.on('login', function(msg){
+    socket.on('login', function(data){
+        user.id     =  data.id;
+        user.name   =  data.name;
+        user.avatar =  data.avatar;
+    });
+
+    socket.on('welcome', function(msg){
         var message = '<li><strong>'+ msg +'</strong></li>';
         $('#messages').append(message);
-    });
+    })
+
 </script>
 
 </body>
