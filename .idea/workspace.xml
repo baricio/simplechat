@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f10cac0b-a6b7-43cf-9b49-499765a9b0c8" name="Default" comment="first commit of simple chat">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/js/facebook.sdk.js" afterPath="$PROJECT_DIR$/js/facebook.sdk.js" />
-    </list>
+    <list default="true" id="f10cac0b-a6b7-43cf-9b49-499765a9b0c8" name="Default" comment="first commit of simple chat" />
     <ignored path="maxchat.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path=".idea/dataSources.local.xml" />
@@ -257,7 +253,7 @@
       <updated>1463581629213</updated>
       <workItem from="1463581630775" duration="8422000" />
       <workItem from="1463653113674" duration="7109000" />
-      <workItem from="1463667352051" duration="28000" />
+      <workItem from="1463667352051" duration="231000" />
     </task>
     <task id="LOCAL-00001" summary="first commit of simple chat">
       <created>1463592121293</created>
@@ -270,7 +266,7 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15559000" />
+    <option name="totallyTimeSpent" value="15762000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="23" width="1440" height="823" extended-state="6" />
