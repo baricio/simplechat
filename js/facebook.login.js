@@ -18,6 +18,7 @@ function getUserInfo() {
 
     FB.api('/me', function(response) {
         socket.emit('login', response);
+        user_id = response.id;
         $('#boxlogin').hide('fast');
         $('#boxmessage').show('fast');
     });

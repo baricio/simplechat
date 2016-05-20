@@ -69,7 +69,8 @@
 
     $('#form_message').submit(function(){
         socket.emit('message', {
-            message: $('#m').val()
+            message: $('#m').val(),
+	    id: user_id
         });
 
         $('#m').val('');
@@ -77,8 +78,9 @@
     });
 
     socket.on('message', function(dados){
-        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
-        $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.msg));
+console.log(dados);       
+ var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
+        $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.message));
     });
 
     $('#boxlogin').submit(function(){
@@ -88,6 +90,7 @@
 
     socket.on('login', function(id){
         user_id     = id;
+console.log(id);
     });
 
     socket.on('welcome', function(msg){

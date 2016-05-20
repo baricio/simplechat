@@ -22,10 +22,10 @@ io.on('connection', function(socket){
         console.log('user disconnected');
     });
 
-    socket.on('message', function(id,message){
+    socket.on('message', function(content){
         var dados = {};
-        dados.user = user[id];
-        dados.message = message;
+        dados.user = user[content.id];
+        dados.message = content.message;
         io.emit('message', dados);
     });
 
@@ -33,7 +33,6 @@ io.on('connection', function(socket){
         base64.base64encoder('http://graph.facebook.com/'+ login.id +'/picture', {string: true}, function(err,image) {
             if (!err){
                 user[login.id] = {name:login.name,avatar:image,id:login.id};
-                io.emit('login',login.id);
                 io.emit('welcome', login.name + ' entrou na sala');
             }
         });
