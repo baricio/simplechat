@@ -64,7 +64,7 @@
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-    var user = {session:'',id:'',name:'',avatar:''}
+    var user_id;
     var socket = io();
 
     $('#form_message').submit(function(){
@@ -76,14 +76,9 @@
         return false;
     });
 
-    socket.on('current_user', function(session){
-        user.session = session;
-        console.log(user);
-    });
-
-    socket.on('message', function(msg){
-        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + user.avatar +'">';
-        $('#messages').append($('<li>').html(img + user.name + ' diz: ' + msg));
+    socket.on('message', function(dados){
+        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
+        $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.msg));
     });
 
     $('#boxlogin').submit(function(){
@@ -91,10 +86,8 @@
         return false;
     });
 
-    socket.on('login', function(data){
-        user.id     =  data.id;
-        user.name   =  data.name;
-        user.avatar =  data.avatar;
+    socket.on('login', function(id){
+        user_id     = id;
     });
 
     socket.on('welcome', function(msg){

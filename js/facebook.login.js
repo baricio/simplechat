@@ -17,7 +17,6 @@ function Login()
 function getUserInfo() {
 
     FB.api('/me', function(response) {
-        response.session = user.session;
         socket.emit('login', response);
         $('#boxlogin').hide('fast');
         $('#boxmessage').show('fast');

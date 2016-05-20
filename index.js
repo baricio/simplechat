@@ -7,6 +7,8 @@ var http = require('http');
 var http_server = http.Server(app);
 var io = require('socket.io')(http_server);
 var base64 = require('node-base64-image');
+var user = {};
+
 
 app.use('/js',express.static(__dirname + '/js'));
 app.get('/', function(req, res){
@@ -15,24 +17,23 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     console.log('a user connected');
-
-    io.sockets.connected[socket.id].emit('current_user', socket.id);
-
+    
     socket.on('disconnect', function(){
         console.log('user disconnected');
     });
 
-    socket.on('message', function(data){
-        var text = data.message;
-        io.emit('message', text);
+    socket.on('message', function(id,message){
+        var dados = {};
+        dados.user = user[id];
+        dados.message = message;
+        io.emit('message', dados);
     });
 
     socket.on('login', function(login){
-        console.log(login);
         base64.base64encoder('http://graph.facebook.com/'+ login.id +'/picture', {string: true}, function(err,image) {
             if (!err){
-                login.avatar = image;
-                io.sockets.connected[login.session].emit('login', login);
+                user[login.id] = {name:login.name,avatar:image,id:login.id};
+                io.emit('login',login.id);
                 io.emit('welcome', login.name + ' entrou na sala');
             }
         });
