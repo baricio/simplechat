@@ -19,9 +19,9 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
     console.log('a user connected');
 
-    database.getMessages(function(err, data){
+    database.getMessages('teste.com',function(err, data){
         if(!err){
-            io.emit('history',data);
+            io.sockets.connected[socket.id].emit('history',data);
         }
     });
 

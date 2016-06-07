@@ -4,28 +4,33 @@
     <title>Socket.IO chat</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body,html {height:100%; overflow:hide }
         body { font: 13px Helvetica, Arial; }
-        #form_message { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+        #form_message { background: #000; padding: 3px; position: fixed; bottom: 0;height:10%; width: 100%; }
         #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
         #form_message button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
         #messages { list-style-type: none; margin: 0; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
 
+        #boxmessage{height:100%}
+        #boxmessage ul{height:90%; overflow:auto}
+
         #boxlogin{
             position: fixed;
             top:25%;
             left: 25%;
             width: 50%;
-            height: 50%;
+            height: 30%;
             border: 1px solid black;
+            background-color:#fff;
         }
 
         #boxlogin form{
             top:25%;
             left: 25%;
             width: 50%;
-            height: 50%;
+            height: 20%;
             position: relative;
         }
 
@@ -55,8 +60,6 @@
 
 <div id="boxlogin">
     <form id="form_login" action="">
-        <label>Apelido</label>
-        <input id="nick" name="nick" autocomplete="off" />
         <button>Login com facebook</button>
     </form>
 </div>
@@ -77,10 +80,20 @@
         return false;
     });
 
+   function scroll(){
+      var box = $('#messages');
+      var height = box[0].scrollHeight;
+      box.scrollTop(height);
+   }
+
+   function message(avatar,name,message){
+        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
+        $('#messages').append($('<li>').html(img + name + ' diz: ' + message));
+        scroll();
+   }
+
     socket.on('message', function(dados){
-        console.log(dados);
-        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
-        $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.message));
+        message(dados.user.avatar, dados.user.name, dados.message);
     });
 
     $('#boxlogin').submit(function(){
@@ -93,19 +106,20 @@
         console.log(id);
     });
 
+    socket.on('history', function(history){
+        console.log('entrou pra historia',history);
+        if(history){
+            $.each(history.message,function(key,data){
+                message(data.avatar, data.nome, data.text);
+            });
+        }
+    });
+
     socket.on('welcome', function(msg){
         var message = '<li><strong>'+ msg +'</strong></li>';
         $('#messages').append(message);
-    })
-
-    socket.on('history', function(dados){
-        if(dados){
-            $.each(dados.message,function(key,data){
-                var img = '<img alt="Embedded Image" src="data:image/png;base64,' + data.avatar +'">';
-                $('#messages').append($('<li>').html(img + data.nome + ' diz: ' + data.text));
-            });
-        }
-    })
+        scroll();
+    });
 
 </script>
 
