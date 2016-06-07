@@ -1,9 +1,11 @@
-# simplechat
+# Simplechat
 Chat example whit nodejs and socket.io
 
 # Dependency
 
 Nodejs, mongoDB
+
+# Quick Start
 
 To start execute the 
 ```
