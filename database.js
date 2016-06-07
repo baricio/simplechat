@@ -1,5 +1,11 @@
 var mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost/test');
+mongoose.connect('mongodb://root:bitnami@localhost/admin');
+
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+    console.log('mongo conectado');
+});
 
 var Message = mongoose.model('Message', {
 	site: String,
@@ -15,9 +21,11 @@ var Message = mongoose.model('Message', {
 
 module.exports = {
 	saveMessage : function(site,user_id,user_name,img64,message,callback){
-
+		
 		Message.find({"site": site}, function(err,docs){
+console.log(docs);
 			if (docs.length){
+			console.log('banco existe');
             	Message.update(
             		{"site":site},
             		{"$push":{
@@ -33,7 +41,7 @@ module.exports = {
             		callback
         		);
 	        }else{
-
+console.log('atualiza dados')
                 var msg = new Message({
 					site: site,
 					message: [

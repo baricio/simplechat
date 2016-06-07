@@ -21,6 +21,7 @@ io.on('connection', function(socket){
 
     database.getMessages(function(err, data){
         if(!err){
+            console.log(data);
             io.emit('history',data);
         }
     });

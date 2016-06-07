@@ -4,13 +4,17 @@
     <title>Socket.IO chat</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        body,html {height:100%; overflow:hide }
         body { font: 13px Helvetica, Arial; }
-        #form_message { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+        #form_message { background: #000; padding: 3px; position: fixed; bottom: 0;height:10%; width: 100%; }
         #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
         #form_message button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
         #messages { list-style-type: none; margin: 0; padding: 0; }
         #messages li { padding: 5px 10px; }
         #messages li:nth-child(odd) { background: #eee; }
+
+        #boxmessage{height:100%}
+        #boxmessage ul{height:90%; overflow:auto}
 
         #boxlogin{
             position: fixed;
@@ -19,6 +23,7 @@
             width: 50%;
             height: 50%;
             border: 1px solid black;
+            background-color:#fff;
         }
 
         #boxlogin form{
@@ -77,10 +82,17 @@
         return false;
     });
 
+   function scroll(){
+      var box = $('#messages');
+      var height = box[0].scrollHeight;
+      box.scrollTop(height);
+   }
+
     socket.on('message', function(dados){
         console.log(dados);
         var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
         $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.message));
+        scroll();
     });
 
     $('#boxlogin').submit(function(){
@@ -96,14 +108,18 @@
     socket.on('welcome', function(msg){
         var message = '<li><strong>'+ msg +'</strong></li>';
         $('#messages').append(message);
+        scroll();
     })
 
     socket.on('history', function(dados){
         console.log(dados);
+	if(dados){
         $.each(dados.message,function(key,data){
             var img = '<img alt="Embedded Image" src="data:image/png;base64,' + data.avatar +'">';
             $('#messages').append($('<li>').html(img + data.nome + ' diz: ' + data.text));
         });
+	}
+        scroll();
     })
 
 </script>
