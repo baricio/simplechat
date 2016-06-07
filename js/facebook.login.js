@@ -20,7 +20,7 @@ function getUserInfo() {
         socket.emit('login', response);
         user_id = response.id;
         $('#boxlogin').hide('fast');
-        $('#boxmessage').show('fast');
+        $('#form_message').show('fast');
     });
 
 }

@@ -46,9 +46,9 @@
 <script src="js/facebook.sdk.js"></script>
 <script src="js/facebook.login.js"></script>
 
-<div id="boxmessage" style="display:none">
+<div id="boxmessage">
     <ul id="messages"></ul>
-    <form id="form_message" action="">
+    <form id="form_message" action="" style="display:none">
         <input id="m" autocomplete="off" /><button>Enviar</button>
     </form>
 </div>
@@ -78,8 +78,8 @@
     });
 
     socket.on('message', function(dados){
-console.log(dados);       
- var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
+        console.log(dados);
+        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + dados.user.avatar +'">';
         $('#messages').append($('<li>').html(img + dados.user.name + ' diz: ' + dados.message));
     });
 
@@ -90,12 +90,20 @@ console.log(dados);
 
     socket.on('login', function(id){
         user_id     = id;
-console.log(id);
+        console.log(id);
     });
 
     socket.on('welcome', function(msg){
         var message = '<li><strong>'+ msg +'</strong></li>';
         $('#messages').append(message);
+    })
+
+    socket.on('history', function(dados){
+        console.log(dados);
+        $.each(dados.message,function(key,data){
+            var img = '<img alt="Embedded Image" src="data:image/png;base64,' + data.avatar +'">';
+            $('#messages').append($('<li>').html(img + data.nome + ' diz: ' + data.text));
+        });
     })
 
 </script>

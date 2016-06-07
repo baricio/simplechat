@@ -1,6 +1,10 @@
 # simplechat
 Chat example whit nodejs and socket.io
 
+# Dependency
+
+Nodejs, mongoDB
+
 To start execute the 
 ```
 npm install

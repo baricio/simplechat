@@ -1,6 +1,7 @@
 /**
  * Created by Fabício on 18/05/16.
  */
+var database = require('./database.js');
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -17,7 +18,13 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     console.log('a user connected');
-    
+
+    database.getMessages(function(err, data){
+        if(!err){
+            io.emit('history',data);
+        }
+    });
+
     socket.on('disconnect', function(){
         console.log('user disconnected');
     });
@@ -27,6 +34,20 @@ io.on('connection', function(socket){
         dados.user = user[content.id];
         dados.message = content.message;
         io.emit('message', dados);
+        database.saveMessage(
+            'teste.com',
+            content.id,
+            dados.user.name,
+            dados.user.avatar,
+            dados.message,
+            function (err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log('saved message');
+                }
+            }
+        );
     });
 
     socket.on('login', function(login){
