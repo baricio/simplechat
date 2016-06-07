@@ -99,11 +99,12 @@
     })
 
     socket.on('history', function(dados){
-        console.log(dados);
-        $.each(dados.message,function(key,data){
-            var img = '<img alt="Embedded Image" src="data:image/png;base64,' + data.avatar +'">';
-            $('#messages').append($('<li>').html(img + data.nome + ' diz: ' + data.text));
-        });
+        if(dados){
+            $.each(dados.message,function(key,data){
+                var img = '<img alt="Embedded Image" src="data:image/png;base64,' + data.avatar +'">';
+                $('#messages').append($('<li>').html(img + data.nome + ' diz: ' + data.text));
+            });
+        }
     })
 
 </script>
