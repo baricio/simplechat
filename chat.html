@@ -7,7 +7,7 @@
         body,html {height:100%; overflow:hide }
         body { font: 13px Helvetica, Arial; }
         #form_message { background: #000; padding: 3px; position: fixed; bottom: 0;height:10%; width: 100%; }
-        #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+        #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; height:100%;}
         #form_message button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
         #messages { list-style-type: none; margin: 0; padding: 0; }
         #messages li { padding: 5px 10px; }
@@ -53,24 +53,24 @@
 
 <div id="boxmessage">
     <ul id="messages"></ul>
-    <form id="form_message" action="" style="display:none">
+    <form id="form_message" action="" >
         <input id="m" autocomplete="off" /><button>Enviar</button>
-    </form>
-</div>
-
-<div id="boxlogin">
-    <form id="form_login" action="">
-        <button>Login com facebook</button>
     </form>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
 <script>
-    var user_id;
+    var user_id = null;
     var socket = io();
 
     $('#form_message').submit(function(){
+
+        if(user_id === null){
+            Login();
+            return false;
+        }
+
         socket.emit('message', {
             message: $('#m').val(),
 	    id: user_id
@@ -103,11 +103,10 @@
 
     socket.on('login', function(id){
         user_id     = id;
-        console.log(id);
+        $('#form_message').trigger('submit');
     });
 
     socket.on('history', function(history){
-        console.log('entrou pra historia',history);
         if(history){
             $.each(history.message,function(key,data){
                 message(data.avatar, data.nome, data.text);

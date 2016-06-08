@@ -55,6 +55,7 @@ io.on('connection', function(socket){
             if (!err){
                 user[login.id] = {name:login.name,avatar:image,id:login.id};
                 io.emit('welcome', login.name + ' entrou na sala');
+                io.sockets.connected[socket.id].emit('login',login.id);
             }
         });
 
