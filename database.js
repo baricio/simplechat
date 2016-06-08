@@ -53,16 +53,46 @@ module.exports = {
                 });
 
                 msg.save(callback);
+
             }
-        })
+        });
 
     },
 
     getMessages : function(site,callback){
         Message
         .findOne({site: site})
-        .sort({"_id":-1})
         .select()
         .exec(callback);
+    },
+
+    limitMessages : function(site){
+
+        console.log('entrou no limite message');
+        var limit_message = 20;
+
+        Message
+            .findOne({site: site})
+            .select()
+            .exec(function(err,doc){
+
+                if(!doc){return false;}
+
+                if(doc.message.length > limit_message){
+                    var i, total_remove = doc.message.length - limit_message;
+
+                    doc.message.forEach(function(item){
+                        if(total_remove <= 0) return false;
+                        doc.message.pull({"_id":item._id});
+                        total_remove--;
+                        console.log(item.text);
+                    });
+
+                    doc.save();
+
+                }
+
+            });
     }
+
 }

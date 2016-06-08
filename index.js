@@ -44,6 +44,7 @@ io.on('connection', function(socket){
                 if (err) {
                     console.log(err);
                 } else {
+                    database.limitMessages('teste.com');
                     console.log('saved message');
                 }
             }
