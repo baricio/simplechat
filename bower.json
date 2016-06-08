@@ -1,0 +1,21 @@
+{
+  "name": "MaxChat",
+  "description": "Real time web chat",
+  "main": "index.js",
+  "authors": [
+    "Fabricio"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/baricio/simplechat",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular-emoji": "angular-emoji-filter#^0.0.2",
+    "angular": "^1.5.6"
+  }
+}

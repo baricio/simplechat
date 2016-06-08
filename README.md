@@ -10,6 +10,7 @@ Nodejs, mongoDB
 To start execute the 
 ```
 npm install
+bower install
 node index.js
 ```
 go to webbrowser and access the address

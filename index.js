@@ -11,9 +11,9 @@ var base64 = require('node-base64-image');
 var user = {};
 
 
-app.use('/js',express.static(__dirname + '/js'));
+app.use('/js',express.static(__dirname + '/www/js'));
 app.get('/', function(req, res){
-    res.sendFile(__dirname + '/chat.html');
+    res.sendFile(__dirname + '/www/chat.html');
 });
 
 io.on('connection', function(socket){
