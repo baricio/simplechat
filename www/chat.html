@@ -47,27 +47,27 @@
 
     </style>
     <link rel="stylesheet" type="text/css" href="js/emoji/emoji.min.css">
-    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
-    <script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
-    <script type="text/javascript" src="lib/angular-sanitize/angular-sanitize.min.js"></script>
-    <script type="text/javascript" src="js/emoji/emoji.min.js""></script>
 </head>
 <body ng-app="app" ng-controller="AppCtrl">
-<script src="js/facebook.sdk.js"></script>
-<script src="js/facebook.login.js"></script>
+    <script src="js/facebook.sdk.js"></script>
+    <script src="js/facebook.login.js"></script>
 
 <div id="boxmessage">
     <ul id="messages">
         <li ng-repeat="message in messages" ng-bind-html="message | emoji"></li>
         <li ng-bind-html="messageWithAliases | emoji"></li>
     </ul>
-    <form id="form_message" ng-submit="sendMessage()" action="" >
+    <form id="form_message" ng-submit="submitMessage($event)" action="" >
         <input id="m" autocomplete="off" /><button>Enviar</button>
     </form>
 </div>
 
 <script src="/socket.io/socket.io.js"></script>
 <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+<script type="text/javascript" src="lib/angular/angular.min.js"></script>
+<script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
+<script type="text/javascript" src="lib/angular-sanitize/angular-sanitize.min.js"></script>
+<script type="text/javascript" src="js/emoji/emoji.min.js""></script>
 <script>
     var user_id = null;
     var socket = io();
@@ -112,7 +112,7 @@
 
         socket.on('login', function(id){
             $scope.user_id = id;
-            $scope.sendMessage();
+            sendMessage();
         });
 
         socket.on('history', function(history){
@@ -121,10 +121,17 @@
                     $scope.messages.push(message(data.avatar, data.nome, data.text));
                 });
                 $scope.$apply();
+                scroll();
             }
         });
 
-        $scope.sendMessage = function(){
+        $scope.submitMessage = function(event){
+            event.preventDefault();
+            sendMessage();
+        }
+
+        var sendMessage = function(){
+
             if($scope.user_id === null){
                 Login();
                 return false;
