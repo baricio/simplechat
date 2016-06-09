@@ -55,7 +55,6 @@
 <div id="boxmessage">
     <ul id="messages">
         <li ng-repeat="message in messages" ng-bind-html="message | emoji"></li>
-        <li ng-bind-html="messageWithAliases | emoji"></li>
     </ul>
     <form id="form_message" ng-submit="submitMessage($event)" action="" >
         <input id="m" autocomplete="off" /><button>Enviar</button>
@@ -85,8 +84,6 @@
     function message(avatar,name,message){
         var img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
         return img + name + ' diz: ' + message;
-        //$('#messages').append($('<li>').html(img + name + ' diz: ' + message));
-        scroll();
     }
 
     angular.module("app", ["dbaq.emoji","ngSanitize"])
@@ -102,10 +99,11 @@
         socket.on('message', function(dados){
             var msg = message(dados.user.avatar, dados.user.name, dados.message);
             $scope.messages.push(msg);
+            $scope.$apply();
+            scroll();
         });
 
         socket.on('welcome', function(msg){
-            //var message = '<li><strong>'+ msg +'</strong></li>';
             $scope.messages.push(msg);
             scroll();
         });
