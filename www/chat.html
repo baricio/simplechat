@@ -46,14 +46,22 @@
         }
 
     </style>
+    <link rel="stylesheet" type="text/css" href="js/emoji/emoji.min.css">
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="lib/angular-sanitize/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="js/emoji/emoji.min.js""></script>
 </head>
-<body>
+<body ng-app="app" ng-controller="AppCtrl">
 <script src="js/facebook.sdk.js"></script>
 <script src="js/facebook.login.js"></script>
 
 <div id="boxmessage">
-    <ul id="messages"></ul>
-    <form id="form_message" action="" >
+    <ul id="messages">
+        <li ng-repeat="message in messages" ng-bind-html="message | emoji"></li>
+        <li ng-bind-html="messageWithAliases | emoji"></li>
+    </ul>
+    <form id="form_message" ng-submit="sendMessage()" action="" >
         <input id="m" autocomplete="off" /><button>Enviar</button>
     </form>
 </div>
@@ -64,21 +72,9 @@
     var user_id = null;
     var socket = io();
 
-    $('#form_message').submit(function(){
+    /*$('#form_message').submit(function(){
 
-        if(user_id === null){
-            Login();
-            return false;
-        }
-
-        socket.emit('message', {
-            message: $('#m').val(),
-	        id: user_id
-        });
-
-        $('#m').val('');
-        return false;
-    });
+    });*/
 
    function scroll(){
       var box = $('#messages');
@@ -86,38 +82,62 @@
       box.scrollTop(height);
    }
 
-   function message(avatar,name,message){
+    function message(avatar,name,message){
         var img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
-        $('#messages').append($('<li>').html(img + name + ' diz: ' + message));
+        return img + name + ' diz: ' + message;
+        //$('#messages').append($('<li>').html(img + name + ' diz: ' + message));
         scroll();
-   }
+    }
 
-    socket.on('message', function(dados){
-        message(dados.user.avatar, dados.user.name, dados.message);
-    });
+    angular.module("app", ["dbaq.emoji","ngSanitize"])
+    .config(function(emojiConfigProvider) {
+        emojiConfigProvider.addAlias("smile", ":)");
+    })
+    .controller("AppCtrl", function ($scope) {
 
-    $('#boxlogin').submit(function(){
-        Login();
-        return false;
-    });
+        $scope.user_id = null;
 
-    socket.on('login', function(id){
-        user_id     = id;
-        $('#form_message').trigger('submit');
-    });
+        $scope.messages = [];
 
-    socket.on('history', function(history){
-        if(history){
-            $.each(history.message,function(key,data){
-                message(data.avatar, data.nome, data.text);
+        socket.on('message', function(dados){
+            var msg = message(dados.user.avatar, dados.user.name, dados.message);
+            $scope.messages.push(msg);
+        });
+
+        socket.on('welcome', function(msg){
+            //var message = '<li><strong>'+ msg +'</strong></li>';
+            $scope.messages.push(msg);
+            scroll();
+        });
+
+        socket.on('login', function(id){
+            $scope.user_id = id;
+            $scope.sendMessage();
+        });
+
+        socket.on('history', function(history){
+            if(history){
+                $.each(history.message,function(key,data){
+                    $scope.messages.push(message(data.avatar, data.nome, data.text));
+                });
+                $scope.$apply();
+            }
+        });
+
+        $scope.sendMessage = function(){
+            if($scope.user_id === null){
+                Login();
+                return false;
+            }
+
+            socket.emit('message', {
+                message: $('#m').val(),
+                id: $scope.user_id
             });
-        }
-    });
 
-    socket.on('welcome', function(msg){
-        var message = '<li><strong>'+ msg +'</strong></li>';
-        $('#messages').append(message);
-        scroll();
+            $('#m').val('');
+            return false;
+        }
     });
 
 </script>

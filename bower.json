@@ -15,7 +15,6 @@
     "tests"
   ],
   "dependencies": {
-    "angular-emoji": "angular-emoji-filter#^0.0.2",
-    "angular": "^1.5.6"
+
   }
 }

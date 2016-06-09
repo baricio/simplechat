@@ -12,6 +12,7 @@ var user = {};
 
 
 app.use('/js',express.static(__dirname + '/www/js'));
+app.use('/lib',express.static(__dirname + '/bower_components'));
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/www/chat.html');
 });
