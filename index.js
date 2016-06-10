@@ -1,7 +1,9 @@
 /**
  * Created by Fabício on 18/05/16.
  */
+
 var database = require('./database.js');
+var striptags = require('striptags');
 var express = require('express');
 var app = express();
 var http = require('http');
@@ -33,7 +35,7 @@ io.on('connection', function(socket){
     socket.on('message', function(content){
         var dados = {};
         dados.user = user[content.id];
-        dados.message = content.message;
+        dados.message = striptags(content.message);
         io.emit('message', dados);
         database.saveMessage(
             'teste.com',

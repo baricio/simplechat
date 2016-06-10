@@ -9,6 +9,8 @@ db.once('open', function() {
 
 var Message = mongoose.model('Message', {
     site: String,
+    censura: [],
+    banidos: [],
     message: [
         {
             user_id: Number,
@@ -29,7 +31,7 @@ module.exports = {
                     {"site":site},
                     {"$push":{
                             "message":{
-                                id: user_id,
+                                user_id: user_id,
                                 nome: user_name,
                                 avatar: img64,
                                 text: message
@@ -44,7 +46,7 @@ module.exports = {
                     site: site,
                     message: [
                         {
-                            id: user_id,
+                            user_id: user_id,
                             nome: user_name,
                             avatar: img64,
                             text: message
