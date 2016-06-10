@@ -1,0 +1,132 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body,html {height:100%; overflow:hidden; }
+body { font: 13px Helvetica, Arial; }
+#form_message {
+    background: #000; padding: 3px; position: fixed; bottom: 0;height:10%;
+    width: 100%; display: flex;align-items: center;justify-content: center;
+}
+#form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; height:100%;}
+#form_message button {  height: 100%; width: 10%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+#messages { list-style-type: none; margin: 0; padding: 0; }
+#messages li { padding: 5px 10px; }
+#messages li:nth-child(odd) { background: #eee; }
+
+#content_chat{height:100%}
+#boxmessage{height:100%}
+#boxmessage ul{height:90%; overflow:auto}
+
+#boxlogin{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: fixed;
+    top:25%;
+    left: 25%;
+    width: 50%;
+    height: 30%;
+    border: 1px solid black;
+    background-color:#fff;
+}
+
+#boxadmin{
+    display: block;
+    position: fixed;
+    top:20%;
+    left: 25%;
+    width: 50%;
+    height: 60%;
+    border: 1px solid black;
+    background-color:#fff;
+}
+
+#boxadmin ul.menu{
+    list-style: none;
+    width: 100%;
+    height: 20%;
+    display: table;
+}
+
+#boxadmin ul.menu li{
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    width: 50%;
+    background-color: #a2a2c1;
+    cursor: pointer;
+}
+
+#boxadmin ul li.active{
+    background-color: #6969dc
+}
+
+#boxadmin .censura{
+    width: 100%;
+    height: 80%;
+    display: block;
+}
+
+#boxadmin .censura #form_censura{
+    height: 100%;
+    padding: 10px;
+}
+
+#boxadmin .censura #form_censura input{
+    width: 70%;
+}
+
+#boxadmin .censura #form_censura ul{
+    height: 70%;
+    overflow: auto;
+    margin-top: 20px;
+}
+
+#boxadmin .censura #form_censura ul li{
+    padding: 6px 0;
+    background-color: #f1f1f1;
+}
+
+#boxadmin .censura #form_censura ul li:nth-child(odd){
+    background-color: #ccc;
+}
+
+#boxadmin .censura #form_censura ul li a{
+    float: right;
+}
+
+#boxadmin .banir{
+    width: 100%;
+    height: 80%;
+    display: block;
+    padding: 10px;
+}
+
+#boxadmin .banir ul{
+    height: 70%;
+    width: 100%;
+    overflow: auto;
+    margin-top: 20px;
+}
+
+#boxadmin .banir ul.lista_banir li span{
+    float: right;
+}
+
+#boxadmin .banir ul.lista_banir li{
+    padding: 6px 0;
+    background-color: #f1f1f1;
+}
+
+#boxadmin .banir ul.lista_banir li:nth-child(odd){
+    background-color: #ccc;
+}
+
+#emoji-list{
+    position: fixed;
+    display: flex;
+    flex-wrap: wrap;
+    width: 80%;
+    margin: 2% 10%;
+    background-color: #CCC;
+    height: 80%;
+    overflow: auto;
+}

@@ -2,357 +2,97 @@
 <html>
 <head>
     <title>Socket.IO chat</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body,html {height:100%; overflow:hide }
-        body { font: 13px Helvetica, Arial; }
-        #form_message {
-            background: #000; padding: 3px; position: fixed; bottom: 0;height:10%;
-            width: 100%; display: flex;align-items: center;justify-content: center;
-        }
-        #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; height:100%;}
-        #form_message button {  height: 100%; width: 10%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-        #messages { list-style-type: none; margin: 0; padding: 0; }
-        #messages li { padding: 5px 10px; }
-        #messages li:nth-child(odd) { background: #eee; }
-
-        #boxmessage{height:100%}
-        #boxmessage ul{height:90%; overflow:auto}
-
-        #boxlogin{
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: fixed;
-            top:25%;
-            left: 25%;
-            width: 50%;
-            height: 30%;
-            border: 1px solid black;
-            background-color:#fff;
-        }
-
-        #boxlogin form button {
-            display: block;
-            width: 100%;
-            height: 3em;
-            margin-top: 10px;
-        }
-
-        #emoji-list{
-            position: fixed;
-            display: flex;
-            flex-wrap: wrap;
-            width: 80%;
-            margin: 2% 10%;
-            background-color: #CCC;
-            height: 80%;
-            overflow: auto;
-        }
-
-
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css">
     <link rel="stylesheet" type="text/css" href="js/emoji/emoji.min.css">
 </head>
-<body ng-app="app" ng-controller="AppCtrl">
+<body ng-app="app">
     <script src="js/facebook.sdk.js"></script>
     <script src="js/facebook.login.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="lib/angular-sanitize/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="js/emoji/emoji.min.js""></script>
+    <script type="text/javascript" src="js/controllers.js""></script>
+    <script type="text/javascript" src="js/app.js""></script>
 
-<div id="emoji-list" ng-show="showEmojis">
-    <div ng-click="addEmoji($event)" ng-repeat="icon in icones" ng-bind-html="icon | emoji"></div>
-</div>
 
-<div id="boxlogin" ng-show="showLogin" >
-    <fb:login-button 
-        data-size="large" 
-        scope="public_profile,email" 
-        data-show-faces="false" 
-        data-auto-logout-link="false" 
-        onlogin="Login();">
-    </fb:login-button>
-</div>
+    <div id="content_chat" ng-controller="AppCtrl">
+        <div id="emoji-list" ng-show="showEmojis">
+            <div ng-click="addEmoji($event)" ng-repeat="icon in icones" ng-bind-html="icon | emoji"></div>
+        </div>
 
-<div id="boxmessage">
-    <ul id="messages">
-        <li ng-repeat="message in messages track by $index" ng-bind-html="message | emoji" ></li>
-    </ul>
-    <form id="form_message" ng-submit="submitMessage($event)" action="" >
-        <i ng-click="showEmojis = !showEmojis" class="emoji emoji_smile" title=":smile:"></i>
-        <input id="m" autocomplete="off" />
-        <button class="enviar">Enviar</button>
-    </form>
-</div>
+        <div id="boxlogin" ng-show="showLogin" >
+            <fb:login-button 
+                data-size="large" 
+                scope="public_profile,email" 
+                data-show-faces="false" 
+                data-auto-logout-link="false" 
+                onlogin="Login();">
+            </fb:login-button>
+        </div>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-<script type="text/javascript" src="lib/angular/angular.min.js"></script>
-<script type="text/javascript" src="lib/angular-route/angular-route.min.js"></script>
-<script type="text/javascript" src="lib/angular-sanitize/angular-sanitize.min.js"></script>
-<script type="text/javascript" src="js/emoji/emoji.min.js""></script>
-<script>
-    var user_id = null;
-    var socket = io();
+        <div id="boxmessage">
+            <ul id="messages">
+                <li ng-repeat="message in messages track by $index" ng-bind-html="message | emoji" ></li>
+            </ul>
+            <form id="form_message" ng-submit="submitMessage($event)" action="" >
+                <i ng-click="showEmojis = !showEmojis" class="emoji emoji_smile" title=":smile:"></i>
+                <input id="m" autocomplete="off" />
+                <button class="enviar">Enviar</button>
+            </form>
+        </div>
+    </div>
 
-    /*$('#form_message').submit(function(){
-
-    });*/
-
-   function scroll(){
-      var box = $('#messages');
-      var height = box[0].scrollHeight;
-      box.scrollTop(height);
-   }
-
-    function message(avatar,name,message){
-        var img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
-        return img + name + ' diz: ' + message;
-    }
-
-    angular.module("app", ["dbaq.emoji","ngSanitize"])
-    .config(function(emojiConfigProvider) {
-        emojiConfigProvider.addAlias("smile", ":)");
-    })
-    .controller("AppCtrl", function ($scope) {
-
-        $scope.user_id = null;
-        $scope.showEmojis = false;
-        $scope.showEmojis = false;
-        $scope.messages = [];
-
-        socket.on('message', function(dados){
-            var msg = message(dados.user.avatar, dados.user.name, dados.message);
-            $scope.messages.push(msg);
-            $scope.$apply();
-            scroll();
-        });
-
-        socket.on('welcome', function(msg){
-            $scope.messages.push(msg);
-            scroll();
-        });
-
-        socket.on('login', function(id){
-            $scope.showLogin = false;
-            $scope.user_id = id;
-            sendMessage();
-        });
-
-        socket.on('history', function(history){
-            if(history){
-                $.each(history.message,function(key,data){
-                    $scope.messages.push(message(data.avatar, data.nome, data.text));
-                });
-                $scope.$apply();
-                scroll();
-            }
-        });
-
-        $scope.submitMessage = function(event){
-            event.preventDefault();
-            $scope.showEmojis = false;
-            sendMessage();
-        }
-
-        var sendMessage = function(){
-
-            if($scope.user_id === null){
-                $scope.showLogin = true;
-                return false;
-            }
-
-            socket.emit('message', {
-                message: $('#m').val(),
-                id: $scope.user_id
-            });
-
-            $('#m').val('');
-            return false;
-        }
-
-        $scope.addEmoji = function(event){
-            debugger;
-            var icon = $(event.target).attr('title');
-
-            if (typeof icon == 'undefined'){
-                return false;
-            }
-
-            var text = $('#m').val();
-            if(text.length > 0 ){
-                $('#m').val(text + ' ' + icon);
-            }else{
-                $('#m').val(icon);
-            }
-
-        }
-
-        $scope.icones = [
-            ":bowtie:", ":smile:", ":laughing:", ":blush:", ":smiley:", ":relaxed:",
-            ":smirk:", ":heart_eyes:", ":kissing_heart:", ":kissing_closed_eyes:", ":flushed:",
-            ":relieved:", ":satisfied:", ":grin:", ":wink:", ":stuck_out_tongue_winking_eye:",
-            ":stuck_out_tongue_closed_eyes:", ":grinning:", ":kissing:", ":winky_face:",
-            ":kissing_smiling_eyes:", ":stuck_out_tongue:", ":sleeping:", ":worried:",
-            ":frowning:", ":anguished:", ":open_mouth:", ":grimacing:", ":confused:", ":hushed:",
-            ":expressionless:", ":unamused:", ":sweat_smile:", ":sweat:", ":wow:",
-            ":disappointed_relieved:", ":weary:", ":pensive:", ":disappointed:", ":confounded:",
-            ":fearful:", ":cold_sweat:", ":persevere:", ":cry:", ":sob:", ":joy:", ":astonished:",
-            ":scream:", ":neckbeard:", ":tired_face:", ":angry:", ":rage:", ":triumph:", ":sleepy:",
-            ":yum:", ":mask:", ":sunglasses:", ":dizzy_face:", ":imp:", ":smiling_imp:",
-            ":neutral_face:", ":no_mouth:", ":innocent:", ":alien:", ":yellow_heart:",
-            ":blue_heart:", ":purple_heart:", ":heart:", ":green_heart:", ":broken_heart:",
-            ":heartbeat:", ":heartpulse:", ":two_hearts:", ":revolving_hearts:", ":cupid:",
-            ":sparkling_heart:", ":sparkles:", ":star:", ":star2:", ":dizzy:", ":boom:",
-            ":collision:", ":anger:", ":exclamation:", ":question:", ":grey_exclamation:",
-            ":grey_question:", ":zzz:", ":dash:", ":sweat_drops:", ":notes:", ":musical_note:",
-            ":fire:", ":hankey:", ":poop:", ":shit:", ":+1:", ":thumbsup:", ":-1:", ":thumbsdown:",
-            ":ok_hand:", ":punch:", ":facepunch:", ":fist:", ":v:", ":wave:", ":hand:", ":raised_hand:",
-            ":open_hands:", ":point_up:", ":point_down:", ":point_left:", ":point_right:",
-            ":raised_hands:", ":pray:", ":point_up_2:", ":clap:", ":muscle:", ":metal:", ":fu:",
-            ":walking:", ":runner:", ":running:", ":couple:", ":family:", ":two_men_holding_hands:",
-            ":two_women_holding_hands:", ":dancer:", ":dancers:", ":ok_woman:", ":no_good:",
-            ":information_desk_person:", ":raising_hand:", ":bride_with_veil:",
-            ":person_with_pouting_face:", ":person_frowning:", ":bow:", ":couplekiss:",
-            ":couple_with_heart:", ":massage:", ":haircut:", ":nail_care:", ":boy:", ":girl:",
-            ":woman:", ":man:", ":baby:", ":older_woman:", ":older_man:",
-            ":person_with_blond_hair:", ":man_with_gua_pi_mao:", ":man_with_turban:",
-            ":construction_worker:", ":cop:", ":angel:", ":princess:", ":smiley_cat:",
-            ":smile_cat:", ":heart_eyes_cat:", ":kissing_cat:", ":smirk_cat:", ":scream_cat:",
-            ":crying_cat_face:", ":joy_cat:", ":pouting_cat:", ":japanese_ogre:",
-            ":japanese_goblin:", ":see_no_evil:", ":hear_no_evil:", ":speak_no_evil:",
-            ":guardsman:", ":skull:", ":feet:", ":lips:", ":kiss:", ":droplet:", ":ear:", ":eyes:",
-            ":nose:", ":tongue:", ":love_letter:", ":bust_in_silhouette:",
-            ":busts_in_silhouette:", ":speech_balloon:", ":thought_balloon:", ":feelsgood:",
-            ":finnadie:", ":goberserk:", ":godmode:", ":hurtrealbad:", ":rage1:", ":rage2:",
-            ":rage3:", ":rage4:", ":suspect:", ":trollface:", ":sunny:", ":umbrella:", ":cloud:",
-            ":snowflake:", ":snowman:", ":zap:", ":cyclone:", ":foggy:", ":ocean:", ":cat:", ":dog:",
-            ":mouse:", ":hamster:", ":rabbit:", ":wolf:", ":frog:", ":tiger:", ":koala:", ":bear:",
-            ":pig:", ":pig_nose:", ":cow:", ":boar:", ":monkey_face:", ":monkey:", ":horse:",
-            ":racehorse:", ":camel:", ":sheep:", ":elephant:", ":panda_face:", ":snake:", ":bird:",
-            ":baby_chick:", ":hatched_chick:", ":hatching_chick:", ":chicken:", ":penguin:",
-            ":turtle:", ":bug:", ":honeybee:", ":ant:", ":beetle:", ":snail:", ":octopus:",
-            ":tropical_fish:", ":fish:", ":whale:", ":whale2:", ":dolphin:", ":cow2:", ":ram:", ":rat:",
-            ":water_buffalo:", ":tiger2:", ":rabbit2:", ":dragon:", ":goat:", ":rooster:", ":dog2:",
-            ":pig2:", ":mouse2:", ":ox:", ":dragon_face:", ":blowfish:", ":crocodile:",
-            ":dromedary_camel:", ":leopard:", ":cat2:", ":poodle:", ":paw_prints:", ":bouquet:",
-            ":cherry_blossom:", ":tulip:", ":four_leaf_clover:", ":rose:", ":sunflower:",
-            ":hibiscus:", ":maple_leaf:", ":leaves:", ":fallen_leaf:", ":herb:", ":mushroom:",
-            ":cactus:", ":palm_tree:", ":evergreen_tree:", ":deciduous_tree:", ":chestnut:",
-            ":seedling:", ":blossom:", ":ear_of_rice:", ":shell:", ":globe_with_meridians:",
-            ":sun_with_face:", ":full_moon_with_face:", ":new_moon_with_face:", ":new_moon:",
-            ":waxing_crescent_moon:", ":first_quarter_moon:", ":waxing_gibbous_moon:",
-            ":full_moon:", ":waning_gibbous_moon:", ":last_quarter_moon:",
-            ":waning_crescent_moon:", ":last_quarter_moon_with_face:",
-            ":first_quarter_moon_with_face:", ":moon:", ":earth_africa:", ":earth_americas:",
-            ":earth_asia:", ":volcano:", ":milky_way:", ":partly_sunny:", ":octocat:", ":squirrel:",
-            ":bamboo:", ":gift_heart:", ":dolls:", ":school_satchel:", ":mortar_board:", ":flags:",
-            ":fireworks:", ":sparkler:", ":wind_chime:", ":rice_scene:", ":jack_o_lantern:",
-            ":ghost:", ":santa:", ":christmas_tree:", ":gift:", ":bell:", ":no_bell:",
-            ":tanabata_tree:", ":tada:", ":confetti_ball:", ":balloon:", ":crystal_ball:", ":cd:",
-            ":dvd:", ":floppy_disk:", ":camera:", ":video_camera:", ":movie_camera:", ":computer:",
-            ":tv:", ":iphone:", ":phone:", ":telephone:", ":telephone_receiver:", ":pager:", ":fax:",
-            ":minidisc:", ":vhs:", ":sound:", ":speaker:", ":mute:", ":loudspeaker:", ":mega:",
-            ":hourglass:", ":hourglass_flowing_sand:", ":alarm_clock:", ":watch:", ":radio:",
-            ":satellite:", ":loop:", ":mag:", ":mag_right:", ":unlock:", ":lock:",
-            ":lock_with_ink_pen:", ":closed_lock_with_key:", ":key:", ":bulb:", ":flashlight:",
-            ":high_brightness:", ":low_brightness:", ":electric_plug:", ":battery:", ":calling:",
-            ":email:", ":mailbox:", ":postbox:", ":bath:", ":bathtub:", ":shower:", ":toilet:",
-            ":wrench:", ":nut_and_bolt:", ":hammer:", ":seat:", ":moneybag:", ":yen:", ":dollar:",
-            ":pound:", ":euro:", ":credit_card:", ":money_with_wings:", ":e-mail:", ":inbox_tray:",
-            ":outbox_tray:", ":envelope:", ":incoming_envelope:", ":postal_horn:",
-            ":mailbox_closed:", ":mailbox_with_mail:", ":mailbox_with_no_mail:", ":door:",
-            ":smoking:", ":bomb:", ":gun:", ":hocho:", ":pill:", ":syringe:", ":page_facing_up:",
-            ":page_with_curl:", ":bookmark_tabs:", ":bar_chart:", ":chart_with_upwards_trend:",
-            ":chart_with_downwards_trend:", ":scroll:", ":clipboard:", ":calendar:", ":date:",
-            ":card_index:", ":file_folder:", ":open_file_folder:", ":scissors:", ":pushpin:",
-            ":paperclip:", ":black_nib:", ":pencil2:", ":straight_ruler:", ":triangular_ruler:",
-            ":closed_book:", ":green_book:", ":blue_book:", ":orange_book:", ":notebook:",
-            ":notebook_with_decorative_cover:", ":ledger:", ":books:", ":bookmark:",
-            ":name_badge:", ":microscope:", ":telescope:", ":newspaper:", ":football:",
-            ":basketball:", ":soccer:", ":baseball:", ":tennis:", ":8ball:", ":rugby_football:",
-            ":bowling:", ":golf:", ":mountain_bicyclist:", ":bicyclist:", ":horse_racing:",
-            ":snowboarder:", ":swimmer:", ":surfer:", ":ski:", ":spades:", ":hearts:", ":clubs:",
-            ":diamonds:", ":gem:", ":ring:", ":trophy:", ":musical_score:", ":musical_keyboard:",
-            ":violin:", ":space_invader:", ":video_game:", ":black_joker:",
-            ":flower_playing_cards:", ":game_die:", ":dart:", ":mahjong:", ":clapper:", ":memo:",
-            ":pencil:", ":book:", ":art:", ":microphone:", ":headphones:", ":trumpet:", ":saxophone:",
-            ":guitar:", ":shoe:", ":sandal:", ":high_heel:", ":lipstick:", ":boot:", ":shirt:",
-            ":tshirt:", ":necktie:", ":womans_clothes:", ":dress:", ":running_shirt_with_sash:",
-            ":jeans:", ":kimono:", ":bikini:", ":ribbon:", ":tophat:", ":crown:", ":womans_hat:",
-            ":mans_shoe:", ":closed_umbrella:", ":briefcase:", ":handbag:", ":pouch:", ":purse:",
-            ":eyeglasses:", ":fishing_pole_and_fish:", ":coffee:", ":tea:", ":sake:",
-            ":baby_bottle:", ":beer:", ":beers:", ":cocktail:", ":tropical_drink:", ":wine_glass:",
-            ":fork_and_knife:", ":pizza:", ":hamburger:", ":fries:", ":poultry_leg:",
-            ":meat_on_bone:", ":spaghetti:", ":curry:", ":fried_shrimp:", ":bento:", ":sushi:",
-            ":fish_cake:", ":rice_ball:", ":rice_cracker:", ":rice:", ":ramen:", ":stew:", ":oden:",
-            ":dango:", ":egg:", ":bread:", ":doughnut:", ":custard:", ":icecream:", ":ice_cream:",
-            ":shaved_ice:", ":birthday:", ":cake:", ":cookie:", ":chocolate_bar:", ":candy:",
-            ":lollipop:", ":honey_pot:", ":apple:", ":green_apple:", ":tangerine:", ":lemon:",
-            ":cherries:", ":grapes:", ":watermelon:", ":strawberry:", ":peach:", ":melon:",
-            ":banana:", ":pear:", ":pineapple:", ":sweet_potato:", ":eggplant:", ":tomato:", ":corn:",
-            ":house:", ":house_with_garden:", ":school:", ":office:", ":post_office:", ":hospital:",
-            ":bank:", ":convenience_store:", ":love_hotel:", ":hotel:", ":wedding:", ":church:",
-            ":department_store:", ":european_post_office:", ":city_sunrise:", ":city_sunset:",
-            ":japanese_castle:", ":european_castle:", ":tent:", ":factory:", ":tokyo_tower:",
-            ":japan:", ":mount_fuji:", ":sunrise_over_mountains:", ":sunrise:", ":stars:",
-            ":themoreyouknow:", ":tmyk:",
-            ":statue_of_liberty:", ":bridge_at_night:", ":carousel_horse:", ":rainbow:",
-            ":ferris_wheel:", ":fountain:", ":roller_coaster:", ":ship:", ":speedboat:", ":boat:",
-            ":sailboat:", ":rowboat:", ":anchor:", ":rocket:", ":airplane:", ":helicopter:",
-            ":steam_locomotive:", ":tram:", ":mountain_railway:", ":bike:", ":aerial_tramway:",
-            ":suspension_railway:", ":mountain_cableway:", ":tractor:", ":blue_car:",
-            ":oncoming_automobile:", ":car:", ":red_car:", ":taxi:", ":oncoming_taxi:",
-            ":articulated_lorry:", ":bus:", ":oncoming_bus:", ":rotating_light:", ":police_car:",
-            ":oncoming_police_car:", ":fire_engine:", ":ambulance:", ":minibus:", ":truck:",
-            ":train:", ":station:", ":train2:", ":bullettrain_front:", ":bullettrain_side:",
-            ":light_rail:", ":monorail:", ":railway_car:", ":trolleybus:", ":ticket:", ":fuelpump:",
-            ":vertical_traffic_light:", ":traffic_light:", ":warning:", ":construction:",
-            ":beginner:", ":atm:", ":slot_machine:", ":busstop:", ":barber:", ":hotsprings:",
-            ":checkered_flag:", ":crossed_flags:", ":izakaya_lantern:", ":moyai:",
-            ":circus_tent:", ":performing_arts:", ":round_pushpin:",
-            ":triangular_flag_on_post:", ":jp:", ":kr:", ":cn:", ":us:", ":fr:", ":es:", ":it:", ":ru:",
-            ":gb:", ":uk:", ":de:", ":one:", ":two:", ":three:", ":four:", ":five:", ":six:", ":seven:",
-            ":eight:", ":nine:", ":keycap_ten:", ":1234:", ":zero:", ":hash:", ":symbols:",
-            ":arrow_backward:", ":arrow_down:", ":arrow_forward:", ":arrow_left:",
-            ":capital_abcd:", ":abcd:", ":abc:", ":arrow_lower_left:", ":arrow_lower_right:",
-            ":arrow_right:", ":arrow_up:", ":arrow_upper_left:", ":arrow_upper_right:",
-            ":arrow_double_down:", ":arrow_double_up:", ":arrow_down_small:",
-            ":arrow_heading_down:", ":arrow_heading_up:", ":leftwards_arrow_with_hook:",
-            ":arrow_right_hook:", ":left_right_arrow:", ":arrow_up_down:", ":arrow_up_small:",
-            ":arrows_clockwise:", ":arrows_counterclockwise:", ":rewind:", ":fast_forward:",
-            ":information_source:", ":ok:", ":twisted_rightwards_arrows:", ":repeat:",
-            ":repeat_one:", ":new:", ":top:", ":up:", ":cool:", ":free:", ":ng:", ":cinema:", ":koko:",
-            ":signal_strength:", ":u5272:", ":u5408:", ":u55b6:", ":u6307:", ":u6708:", ":u6709:",
-            ":u6e80:", ":u7121:", ":u7533:", ":u7a7a:", ":u7981:", ":sa:", ":restroom:", ":mens:",
-            ":womens:", ":baby_symbol:", ":no_smoking:", ":parking:", ":wheelchair:", ":metro:",
-            ":baggage_claim:", ":accept:", ":wc:", ":potable_water:", ":put_litter_in_its_place:",
-            ":secret:", ":congratulations:", ":m:", ":passport_control:", ":left_luggage:",
-            ":customs:", ":ideograph_advantage:", ":cl:", ":sos:", ":id:", ":no_entry_sign:",
-            ":underage:", ":no_mobile_phones:", ":do_not_litter:", ":non-potable_water:",
-            ":no_bicycles:", ":no_pedestrians:", ":children_crossing:", ":no_entry:",
-            ":eight_spoked_asterisk:", ":eight_pointed_black_star:", ":heart_decoration:",
-            ":vs:", ":vibration_mode:", ":mobile_phone_off:", ":chart:", ":currency_exchange:",
-            ":aries:", ":taurus:", ":gemini:", ":cancer:", ":leo:", ":virgo:", ":libra:", ":scorpius:",
-            ":sagittarius:", ":capricorn:", ":aquarius:", ":pisces:", ":ophiuchus:",
-            ":six_pointed_star:", ":negative_squared_cross_mark:", ":a:", ":b:", ":ab:", ":o2:",
-            ":diamond_shape_with_a_dot_inside:", ":recycle:", ":end:", ":on:", ":soon:", ":clock1:",
-            ":clock130:", ":clock10:", ":clock1030:", ":clock11:", ":clock1130:", ":clock12:",
-            ":clock1230:", ":clock2:", ":clock230:", ":clock3:", ":clock330:", ":clock4:",
-            ":clock430:", ":clock5:", ":clock530:", ":clock6:", ":clock630:", ":clock7:",
-            ":clock730:", ":clock8:", ":clock830:", ":clock9:", ":clock930:", ":heavy_dollar_sign:",
-            ":copyright:", ":registered:", ":tm:", ":x:", ":heavy_exclamation_mark:", ":bangbang:",
-            ":interrobang:", ":o:", ":heavy_multiplication_x:", ":heavy_plus_sign:",
-            ":heavy_minus_sign:", ":heavy_division_sign:", ":white_flower:", ":100:",
-            ":heavy_check_mark:", ":ballot_box_with_check:", ":radio_button:", ":link:",
-            ":curly_loop:", ":wavy_dash:", ":part_alternation_mark:", ":trident:",
-            ":black_square:", ":white_square:", ":white_check_mark:", ":black_square_button:",
-            ":white_square_button:", ":black_circle:", ":white_circle:", ":red_circle:",
-            ":large_blue_circle:", ":large_blue_diamond:", ":large_orange_diamond:",
-            ":small_blue_diamond:", ":small_orange_diamond:", ":small_red_triangle:",
-            ":small_red_triangle_down:", ":shipit:"
-        ];
-    });
-
-</script>
+    <div id="boxadmin" ng-controller="AdminCtrl" ng-show="adminShow">
+        <ul class="menu">
+            <li ng-click="tabCensura()" ng-class="{'active':showCensura}">Censurar palavras</li>
+            <li ng-click="tabBanir()" ng-class="{'active':showBanir}">Banir Usuário</li>
+        </ul>
+        <div class="censura" ng-show="showCensura" >
+            <form id="form_censura" ng-submit="submitCensura()" action="" >
+                <input ng-model="censura_palavra" />
+                <button class="enviar">Salvar</button>
+                <ul class="lista_censura">
+                    <li class="active">Palavrão1 <a href="#">remove</a></li>
+                    <li class="active">Palavrão2 <a href="#">remove</a></li>
+                    <li class="active">Palavrão3 <a href="#">remove</a></li>
+                    <li class="active">Palavrão4 <a href="#">remove</a></li>
+                    <li class="active">Palavrão5 <a href="#">remove</a></li>
+                    <li class="active">Palavrão6 <a href="#">remove</a></li>
+                    <li class="active">Palavrão7 <a href="#">remove</a></li>
+                    <li class="active">Palavrão8 <a href="#">remove</a></li>
+                    <li class="active">Palavrão9 <a href="#">remove</a></li>
+                    <li class="active">Palavrão10 <a href="#">remove</a></li>
+                    <li class="active">Palavrão11 <a href="#">remove</a></li>
+                    <li class="active">Palavrão12 <a href="#">remove</a></li>
+                    <li class="active">Palavrão13 <a href="#">remove</a></li>
+                    <li class="active">Palavrão14 <a href="#">remove</a></li>
+                    <li class="active">Palavrão15 <a href="#">remove</a></li>
+                </ul>
+            </form>
+        </div>
+        <div class="banir" ng-show="showBanir">
+            <ul class="lista_banir">
+                <li class="active">User1 <span><input type="checkbox" name="1">Banir</span></li>
+                <li class="active">User2 <span><input type="checkbox" name="2">Banir</span></li>
+                <li class="active">User3 <span><input type="checkbox" name="3">Banir</span></li>
+                <li class="active">User4 <span><input type="checkbox" name="4">Banir</span></li>
+                <li class="active">User5 <span><input type="checkbox" name="5">Banir</span></li>
+                <li class="active">User6 <span><input type="checkbox" name="6">Banir</span></li>
+                <li class="active">User7 <span><input type="checkbox" name="7">Banir</span></li>
+                <li class="active">User8 <span><input type="checkbox" name="8">Banir</span></li>
+                <li class="active">User9 <span><input type="checkbox" name="9">Banir</span></li>
+                <li class="active">User10 <span><input type="checkbox" name="10">Banir</span></li>
+                <li class="active">User11 <span><input type="checkbox" name="11">Banir</span></li>
+                <li class="active">User12 <span><input type="checkbox" name="12">Banir</span></li>
+                <li class="active">User13 <span><input type="checkbox" name="13">Banir</span></li>
+                <li class="active">User14 <span><input type="checkbox" name="14">Banir</span></li>
+                <li class="active">User15 <span><input type="checkbox" name="15">Banir</span></li>
+            </ul>
+        </div>
+    </div>
 
 </body>
 </html>

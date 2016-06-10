@@ -13,6 +13,7 @@ var base64 = require('node-base64-image');
 var user = {};
 
 
+app.use('/css',express.static(__dirname + '/www/css'));
 app.use('/js',express.static(__dirname + '/www/js'));
 app.use('/lib',express.static(__dirname + '/bower_components'));
 app.get('/', function(req, res){
