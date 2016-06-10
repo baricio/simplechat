@@ -20,6 +20,9 @@
         #boxmessage ul{height:90%; overflow:auto}
 
         #boxlogin{
+            display: flex;
+            align-items: center;
+            justify-content: center;
             position: fixed;
             top:25%;
             left: 25%;
@@ -27,18 +30,6 @@
             height: 30%;
             border: 1px solid black;
             background-color:#fff;
-        }
-
-        #boxlogin form{
-            top:25%;
-            left: 25%;
-            width: 50%;
-            height: 20%;
-            position: relative;
-        }
-
-        #boxlogin form input{
-            width: 100%;
         }
 
         #boxlogin form button {
@@ -69,6 +60,16 @@
 
 <div id="emoji-list" ng-show="showEmojis">
     <div ng-click="addEmoji($event)" ng-repeat="icon in icones" ng-bind-html="icon | emoji"></div>
+</div>
+
+<div id="boxlogin" ng-show="showLogin" >
+    <fb:login-button 
+        data-size="large" 
+        scope="public_profile,email" 
+        data-show-faces="true" 
+        data-auto-logout-link="false" 
+        onlogin="Login();">
+    </fb:login-button>
 </div>
 
 <div id="boxmessage">
@@ -115,6 +116,7 @@
 
         $scope.user_id = null;
         $scope.showEmojis = false;
+        $scope.showEmojis = false;
         $scope.messages = [];
 
         socket.on('message', function(dados){
@@ -130,6 +132,7 @@
         });
 
         socket.on('login', function(id){
+            $scope.showLogin = false;
             $scope.user_id = id;
             sendMessage();
         });
@@ -153,7 +156,7 @@
         var sendMessage = function(){
 
             if($scope.user_id === null){
-                Login();
+                $scope.showLogin = true;
                 return false;
             }
 
@@ -201,7 +204,7 @@
             ":sparkling_heart:", ":sparkles:", ":star:", ":star2:", ":dizzy:", ":boom:",
             ":collision:", ":anger:", ":exclamation:", ":question:", ":grey_exclamation:",
             ":grey_question:", ":zzz:", ":dash:", ":sweat_drops:", ":notes:", ":musical_note:",
-            ":fire:", ":hankey:", ":poop:", ":shit:", ":\\+1:", ":thumbsup:", ":-1:", ":thumbsdown:",
+            ":fire:", ":hankey:", ":poop:", ":shit:", ":+1:", ":thumbsup:", ":-1:", ":thumbsdown:",
             ":ok_hand:", ":punch:", ":facepunch:", ":fist:", ":v:", ":wave:", ":hand:", ":raised_hand:",
             ":open_hands:", ":point_up:", ":point_down:", ":point_left:", ":point_right:",
             ":raised_hands:", ":pray:", ":point_up_2:", ":clap:", ":muscle:", ":metal:", ":fu:",
