@@ -109,6 +109,7 @@ body { font: 13px Helvetica, Arial; }
 
 #boxadmin .banir ul.lista_banir li span{
     float: right;
+    width: 15%;
 }
 
 #boxadmin .banir ul.lista_banir li{

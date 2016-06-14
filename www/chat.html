@@ -51,45 +51,22 @@
             <li ng-click="tabBanir()" ng-class="{'active':showBanir}">Banir Usuário</li>
         </ul>
         <div class="censura" ng-show="showCensura" >
-            <form id="form_censura" ng-submit="submitCensura()" action="" >
+            <form id="form_censura" ng-submit="submitCensura($event)" action="" >
                 <input ng-model="censura_palavra" />
                 <button class="enviar">Salvar</button>
                 <ul class="lista_censura">
-                    <li class="active">Palavrão1 <a href="#">remove</a></li>
-                    <li class="active">Palavrão2 <a href="#">remove</a></li>
-                    <li class="active">Palavrão3 <a href="#">remove</a></li>
-                    <li class="active">Palavrão4 <a href="#">remove</a></li>
-                    <li class="active">Palavrão5 <a href="#">remove</a></li>
-                    <li class="active">Palavrão6 <a href="#">remove</a></li>
-                    <li class="active">Palavrão7 <a href="#">remove</a></li>
-                    <li class="active">Palavrão8 <a href="#">remove</a></li>
-                    <li class="active">Palavrão9 <a href="#">remove</a></li>
-                    <li class="active">Palavrão10 <a href="#">remove</a></li>
-                    <li class="active">Palavrão11 <a href="#">remove</a></li>
-                    <li class="active">Palavrão12 <a href="#">remove</a></li>
-                    <li class="active">Palavrão13 <a href="#">remove</a></li>
-                    <li class="active">Palavrão14 <a href="#">remove</a></li>
-                    <li class="active">Palavrão15 <a href="#">remove</a></li>
+                    <li ng-repeat="item in lista_censura" class="active">
+                        {{item}}
+                        <a ng-click="removeCensura($event,item)" href="javascript:void(0)">remove</a>
+                    </li>
                 </ul>
             </form>
         </div>
         <div class="banir" ng-show="showBanir">
             <ul class="lista_banir">
-                <li class="active">User1 <span><input type="checkbox" name="1">Banir</span></li>
-                <li class="active">User2 <span><input type="checkbox" name="2">Banir</span></li>
-                <li class="active">User3 <span><input type="checkbox" name="3">Banir</span></li>
-                <li class="active">User4 <span><input type="checkbox" name="4">Banir</span></li>
-                <li class="active">User5 <span><input type="checkbox" name="5">Banir</span></li>
-                <li class="active">User6 <span><input type="checkbox" name="6">Banir</span></li>
-                <li class="active">User7 <span><input type="checkbox" name="7">Banir</span></li>
-                <li class="active">User8 <span><input type="checkbox" name="8">Banir</span></li>
-                <li class="active">User9 <span><input type="checkbox" name="9">Banir</span></li>
-                <li class="active">User10 <span><input type="checkbox" name="10">Banir</span></li>
-                <li class="active">User11 <span><input type="checkbox" name="11">Banir</span></li>
-                <li class="active">User12 <span><input type="checkbox" name="12">Banir</span></li>
-                <li class="active">User13 <span><input type="checkbox" name="13">Banir</span></li>
-                <li class="active">User14 <span><input type="checkbox" name="14">Banir</span></li>
-                <li class="active">User15 <span><input type="checkbox" name="15">Banir</span></li>
+                <li ng-repeat="user in lista_banir">
+                    {{user._id.nome}}<span><input type="checkbox" name="1">Banir</span>
+                </li>
             </ul>
         </div>
     </div>

@@ -4,16 +4,41 @@ angular.module("controller", [])
 	$scope.adminShow = true;
 	$scope.showCensura = true;
 	$scope.showBanir = false;
-	
+
 	$scope.tabCensura = function(){
 		$scope.showCensura = true;
 		$scope.showBanir = false;
+	}
+
+	$scope.submitCensura = function(envent){
+		event.preventDefault();
+		socket.emit('saveCensura', $scope.censura_palavra);
 	}
 
 	$scope.tabBanir = function(){
 		$scope.showCensura = false;
 		$scope.showBanir = true;
 	}
+
+	socket.on('listaCensura',function(dados){
+        if(dados){
+		  $scope.lista_censura = dados.censura;
+		  $scope.$apply();
+        }
+	});
+
+	$scope.removeCensura = function(event,palavra){
+		$(event.currentTarget).parent().remove();
+		socket.emit('removeCensura', palavra);
+	}
+
+    socket.on('listaUser',function(dados){
+        if(dados){
+            console.log(dados);
+          $scope.lista_banir = dados;
+          $scope.$apply();
+        }
+    });
 
 })
 .controller("AppCtrl", function ($scope) {

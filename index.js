@@ -29,6 +29,18 @@ io.on('connection', function(socket){
         }
     });
 
+    database.getCensura('teste.com',function(err, data){
+        if(!err){
+            io.emit('listaCensura',data);
+        }
+    });
+
+    database.getUsers('teste.com',function(err, data){
+        if(!err){
+            io.emit('listaUser',data);
+        }
+    });
+
     socket.on('disconnect', function(){
         console.log('user disconnected');
     });
@@ -64,6 +76,34 @@ io.on('connection', function(socket){
             }
         });
 
+    });
+
+    socket.on('saveCensura', function(palavra){
+        database.saveCensura(
+            'teste.com',
+            palavra,
+            function (err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    database.getCensura('teste.com',function(err, data){
+                        if(!err){
+                            io.emit('listaCensura',data);
+                        }
+                    })
+                }
+            }
+        );
+    });
+
+    socket.on('removeCensura', function(palavra){
+        database.removeCensura('teste.com',palavra,function(err){
+            if(err){
+                console.log(err);
+            }else{
+                console.log('Removido '+ palavra);
+            }
+        });
     });
 
 });

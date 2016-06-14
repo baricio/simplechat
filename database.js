@@ -11,6 +11,12 @@ var Message = mongoose.model('Message', {
     site: String,
     censura: [],
     banidos: [],
+    online:  [
+        {
+            user_id: Number,
+            nome: String,
+        }
+    ],
     message: [
         {
             user_id: Number,
@@ -66,6 +72,38 @@ module.exports = {
         .findOne({site: site})
         .select()
         .exec(callback);
+    },
+
+    saveCensura : function(site,palavra,callback){
+
+        Message.findOneAndUpdate(
+            {site: site},
+            {$addToSet:{censura:palavra}},
+            callback
+        );
+
+    },
+
+    getCensura : function(site,callback){
+        Message
+        .findOne({site: site})
+        .select("censura")
+        .exec(callback);
+    },
+
+    removeCensura : function(site,palavra,callback){
+        Message.findOneAndUpdate(
+            {site: site},
+            {$pull:{censura:palavra}},
+            callback
+        );
+    },
+
+    getUsers : function(site,callback){
+        Message.aggregate([
+            {"$unwind":"$message"},
+            {"$group" : {_id : {"user_id":"$message.user_id","nome":"$message.nome" } }}
+        ],callback);
     },
 
     limitMessages : function(site){
