@@ -39,6 +39,12 @@ body { font: 13px Helvetica, Arial; }
     background-color:#fff;
 }
 
+#boxadmin a.close{
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
 #boxadmin ul.menu{
     list-style: none;
     width: 100%;
@@ -102,23 +108,32 @@ body { font: 13px Helvetica, Arial; }
 
 #boxadmin .banir ul{
     height: 70%;
-    width: 100%;
     overflow: auto;
     margin-top: 20px;
 }
 
-#boxadmin .banir ul.lista_banir li span{
-    float: right;
-    width: 15%;
-}
-
-#boxadmin .banir ul.lista_banir li{
+#boxadmin .banir ul li{
     padding: 6px 0;
     background-color: #f1f1f1;
 }
 
-#boxadmin .banir ul.lista_banir li:nth-child(odd){
+#boxadmin .banir ul li:nth-child(odd){
     background-color: #ccc;
+}
+
+#boxadmin .banir ul li span{
+    float: right;
+    width: 15%;
+}
+
+#boxadmin .banir ul.lista_banir{
+    width: 48%;
+    float: left;
+}
+
+#boxadmin .banir ul.lista_banidos{
+    width: 48%;
+    float: right;
 }
 
 #emoji-list{

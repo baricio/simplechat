@@ -2,44 +2,80 @@
  * Created by Fabício on 18/05/16.
  */
 
-var database = require('./database.js');
-var striptags = require('striptags');
-var express = require('express');
-var app = express();
-var http = require('http');
+var database    = require('./database.js');
+var striptags   = require('striptags');
+var express     = require('express');
+var app         = express();
+var http        = require('http');
 var http_server = http.Server(app);
-var io = require('socket.io')(http_server);
-var base64 = require('node-base64-image');
-var user = {};
+var io          = require('socket.io')(http_server);
+var base64      = require('node-base64-image');
+var user        = {};
+var site        = '';
 
 
 app.use('/css',express.static(__dirname + '/www/css'));
 app.use('/js',express.static(__dirname + '/www/js'));
 app.use('/lib',express.static(__dirname + '/bower_components'));
-app.get('/', function(req, res){
-    res.sendFile(__dirname + '/www/chat.html');
+app.get('/:site', function(req, res){
+    if(req.params.site){
+        res.sendFile(__dirname + '/www/chat.html');
+        site = req.params.site;
+    }else{
+        res.status(400);
+        res.send('fail to load');
+    }
 });
 
-io.on('connection', function(socket){
-    console.log('a user connected');
+app.get('/admin/:site', function(req, res){
+    if(req.params.site){
+        res.sendFile(__dirname + '/www/chat.html');
+        site = req.params.site;
+    }else{
+        res.status(400);
+        res.send('fail to load');
+    }
+});
 
-    database.getMessages('teste.com',function(err, data){
+var getMessages = function(io,socket){
+    database.getMessages(site,function(err, data){
         if(!err){
             io.sockets.connected[socket.id].emit('history',data);
         }
     });
+};
 
-    database.getCensura('teste.com',function(err, data){
+var getCensura = function(io){
+    database.getCensura(site,function(err, data){
         if(!err){
             io.emit('listaCensura',data);
         }
     });
+}
 
-    database.getUsers('teste.com',function(err, data){
+var getUsers = function(io){
+    database.getUsers(site,function(err, data){
         if(!err){
             io.emit('listaUser',data);
         }
     });
+}
+
+var getBanidos = function(io){
+    database.getBanidos(site,function(err, data){
+        if(!err){
+            io.emit('listaBanidos',data);
+        }
+    });
+}
+
+io.on('connection', function(socket){
+    console.log('a user connected');
+
+    getMessages(io,socket);
+    getCensura(io);
+    getUsers(io);
+    getBanidos(io);
 
     socket.on('disconnect', function(){
         console.log('user disconnected');
@@ -51,7 +87,7 @@ io.on('connection', function(socket){
         dados.message = striptags(content.message);
         io.emit('message', dados);
         database.saveMessage(
-            'teste.com',
+            site,
             content.id,
             dados.user.name,
             dados.user.avatar,
@@ -60,7 +96,7 @@ io.on('connection', function(socket){
                 if (err) {
                     console.log(err);
                 } else {
-                    database.limitMessages('teste.com');
+                    database.limitMessages(site);
                     console.log('saved message');
                 }
             }
@@ -80,13 +116,13 @@ io.on('connection', function(socket){
 
     socket.on('saveCensura', function(palavra){
         database.saveCensura(
-            'teste.com',
+            site,
             palavra,
             function (err) {
                 if (err) {
                     console.log(err);
                 } else {
-                    database.getCensura('teste.com',function(err, data){
+                    database.getCensura(site,function(err, data){
                         if(!err){
                             io.emit('listaCensura',data);
                         }
@@ -97,11 +133,33 @@ io.on('connection', function(socket){
     });
 
     socket.on('removeCensura', function(palavra){
-        database.removeCensura('teste.com',palavra,function(err){
+        database.removeCensura(site,palavra,function(err){
             if(err){
                 console.log(err);
             }else{
                 console.log('Removido '+ palavra);
+            }
+        });
+    });
+
+    socket.on('banir', function(user){
+        database.banir(site,user,function(err){
+            if(err){
+                console.log(err);
+            }else{
+                getUsers(io);
+                getBanidos(io);
+            }
+        });
+    });
+
+    socket.on('ativar', function(user){
+        database.ativar(site,user,function(err){
+            if(err){
+                console.log(err);
+            }else{
+                getUsers(io);
+                getBanidos(io);
             }
         });
     });

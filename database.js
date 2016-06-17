@@ -101,9 +101,33 @@ module.exports = {
 
     getUsers : function(site,callback){
         Message.aggregate([
+            {"$match": {site:site}},
             {"$unwind":"$message"},
             {"$group" : {_id : {"user_id":"$message.user_id","nome":"$message.nome" } }}
         ],callback);
+    },
+
+    banir: function(site,user,callback){
+        Message.findOneAndUpdate(
+            {site: site},
+            {$push:{banidos: user}},
+            callback
+        );
+    },
+
+    getBanidos : function(site,callback){
+        Message
+        .findOne({site: site})
+        .select('banidos')
+        .exec(callback);
+    },
+
+    ativar: function(site, user, callback){
+        Message.update(
+            {site:site},
+            {"$pull":{"banidos": {"user_id":user.user_id} } },
+            callback
+        );
     },
 
     limitMessages : function(site){

@@ -12,7 +12,7 @@ function message(avatar,name,message){
     return img + name + ' diz: ' + message;
 }
 
-angular.module("app", ["dbaq.emoji","ngSanitize","controller"])
+angular.module("app", ["dbaq.emoji","ngSanitize","controller","services"])
 .config(function(emojiConfigProvider) {
     emojiConfigProvider.addAlias("smile", ":)");
 });
