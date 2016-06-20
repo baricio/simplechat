@@ -1,7 +1,7 @@
 angular.module("controller", [])
-.controller("AdminCtrl", function ($scope) {
+.controller("AdminCtrl", function ($scope,$rootScope) {
 
-	$scope.adminShow = true;
+	$scope.adminShow = false;
 	$scope.showCensura = true;
 	$scope.showBanir = false;
 
@@ -28,6 +28,10 @@ angular.module("controller", [])
         $scope.adminShow = true;
     }
 
+    $rootScope.$on('openAdmin', function(event, data) {
+        $scope.adminShow = !$scope.adminShow;
+    });
+
 	$scope.tabCensura = function(){
 		$scope.showCensura = true;
 		$scope.showBanir = false;
@@ -35,7 +39,7 @@ angular.module("controller", [])
 
 	$scope.submitCensura = function(envent){
 		event.preventDefault();
-		socket.emit('saveCensura', $scope.censura_palavra);
+		emit('saveCensura', $scope.censura_palavra);
 	}
 
 	$scope.tabBanir = function(){
@@ -46,20 +50,20 @@ angular.module("controller", [])
 
     $scope.removeCensura = function(event,palavra){
         $(event.currentTarget).parent().remove();
-        socket.emit('removeCensura', palavra);
+        emit('removeCensura', palavra);
     }
 
     $scope.banir = function(envet, user){
         $(event.currentTarget).parent().parent().remove();
         $scope.lista_banidos.push({user_id:user._id.user_id,nome:user._id.nome});
-        socket.emit('banir', {user_id:user._id.user_id,nome:user._id.nome});
+        emit('banir', {user_id:user._id.user_id,nome:user._id.nome});
     }
 
     $scope.ativar = function(envet, user){
         $(event.currentTarget).parent().parent().remove();
         pos = $scope.lista_banidos.map(function(e) { return e.user_id; }).indexOf(user.user_id);
         $scope.lista_banidos.splice(pos,1);
-        socket.emit('ativar', {user_id:user.user_id,nome:user.nome});
+        emit('ativar', {user_id:user.user_id,nome:user.nome});
     }
 
 	socket.on('listaCensura',function(dados){
@@ -86,7 +90,7 @@ angular.module("controller", [])
     });
 
 })
-.controller("AppCtrl", function ($scope,svAdmin, fcIcons) {
+.controller("AppCtrl", function ($scope, $rootScope, svAdmin, fcIcons) {
 
     $scope.user_id       = null;
     $scope.showEmojis    = false;
@@ -95,6 +99,10 @@ angular.module("controller", [])
     $scope.lista_censura = [];
     $scope.lista_banidos = [];
     $scope.icones        = fcIcons.data;
+
+    if(angular.element('#boxadmin').length ) {
+        emit('dataAdmin',{admin:true});
+    }
 
     socket.on('listaCensura',function(dados){
         if(dados){
@@ -149,10 +157,21 @@ angular.module("controller", [])
         }
     });
 
+    $scope.openAdmin = function(event){
+        event.preventDefault();
+        $rootScope.$emit('openAdmin', true);
+    }
+
     $scope.submitMessage = function(event){
         event.preventDefault();
         $scope.showEmojis = false;
         sendMessage();
+    }
+
+    $scope.submitMessageAdmin = function(event){
+        event.preventDefault();
+        $scope.showEmojis = false;
+        sendMessageAdmin();
     }
 
     var sendMessage = function(){
@@ -172,13 +191,24 @@ angular.module("controller", [])
             return false;
         }
 
-        socket.emit('message', {
+        emit('message', {
+            class: 'user',
             message: $('#m').val(),
             id: $scope.user_id
         });
 
         $('#m').val('');
         return false;
+    }
+
+    var sendMessageAdmin = function(){
+        emit('message', {
+            class: 'admin',
+            message: $('#m').val(),
+            id: 0
+        });
+
+        $('#m').val('');
     }
 
     $scope.addEmoji = function(event){

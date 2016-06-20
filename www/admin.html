@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+    <title>chat</title>
+    <link rel="stylesheet" type="text/css" href="../css/style.css">
+    <link rel="stylesheet" type="text/css" href="../js/emoji/emoji.min.css">
+</head>
+<body ng-app="app">
+    <script src="../js/facebook.sdk.js"></script>
+    <script src="../js/facebook.login.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+    <script type="text/javascript" src="../lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="../lib/angular-route/angular-route.min.js"></script>
+    <script type="text/javascript" src="../lib/angular-sanitize/angular-sanitize.min.js"></script>
+    <script type="text/javascript" src="../js/emoji/emoji.min.js""></script>
+    <script type="text/javascript" src="../js/services.js""></script>
+    <script type="text/javascript" src="../js/controllers.js""></script>
+    <script type="text/javascript" src="../js/app.js""></script>
+
+
+    <div id="content_chat" ng-controller="AppCtrl">
+        <div id="emoji-list" ng-show="showEmojis">
+            <div ng-click="addEmoji($event)" ng-repeat="icon in icones" ng-bind-html="icon | emoji"></div>
+        </div>
+
+        <div id="boxlogin" ng-show="showLogin" >
+            <fb:login-button
+                data-size="large"
+                scope="public_profile,email"
+                data-show-faces="false"
+                data-auto-logout-link="false"
+                onlogin="Login();">
+            </fb:login-button>
+        </div>
+
+        <div id="boxmessage">
+            <ul id="messages">
+                <li ng-repeat="message in messages track by $index" ng-class="{{message.class}}" ng-bind-html="message | emoji" ></li>
+            </ul>
+            <form id="form_message" ng-submit="submitMessageAdmin($event)" action="" >
+                <i ng-click="showEmojis = !showEmojis" class="emoji emoji_smile" title=":smile:"></i>
+                <input id="m" autocomplete="off" />
+                <button class="enviar">Enviar</button>
+                <button ng-click="openAdmin($event)" class="enviar">Admin</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="boxadmin" ng-controller="AdminCtrl" ng-show="adminShow">
+        <a href="javascript:void(0)" ng-click="close()" class="close">Fechar</a>
+        <ul class="menu">
+            <li ng-click="tabCensura()" ng-class="{'active':showCensura}">Censurar palavras</li>
+            <li ng-click="tabBanir()" ng-class="{'active':showBanir}">Banir Usuário</li>
+        </ul>
+        <div class="censura" ng-show="showCensura" >
+            <form id="form_censura" ng-submit="submitCensura($event)" action="" >
+                <input ng-model="censura_palavra" />
+                <button class="enviar">Salvar</button>
+                <ul class="lista_censura">
+                    <li ng-repeat="item in lista_censura" class="active">
+                        {{item}}
+                        <a ng-click="removeCensura($event,item)" href="javascript:void(0)">remove</a>
+                    </li>
+                </ul>
+            </form>
+        </div>
+        <div class="banir" ng-show="showBanir">
+            <ul class="lista_banir">
+                <div>Lista de usuários</div>
+                <li ng-repeat="user in lista_banir" userid="{{user._id.user_id}}">
+                    {{user._id.nome}}<span><input type="button" name="banir" value="Banir" ng-click="banir($event, user)"></span>
+                </li>
+            </ul>
+            <ul class="lista_banidos">
+                <div>Lista de banidos</div>
+                <li ng-repeat="user in lista_banidos" userid="{{user.user_id}}">
+                    {{user.nome}}<span><input type="button" name="ativar" value="Ativar" ng-click="ativar($event, user)"></span>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</body>
+</html>

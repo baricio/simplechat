@@ -22,13 +22,14 @@ var Message = mongoose.model('Message', {
             user_id: Number,
             nome: String,
             avatar:String,
-            text: String
+            text: String,
+            cssclass: String
         }
     ]
 });
 
 module.exports = {
-    saveMessage : function(site,user_id,user_name,img64,message,callback){
+    saveMessage : function(site,user_id,user_name,img64,message,cssclass,callback){
 
         Message.find({"site": site}, function(err,docs){
 
@@ -40,7 +41,8 @@ module.exports = {
                                 user_id: user_id,
                                 nome: user_name,
                                 avatar: img64,
-                                text: message
+                                text: message,
+                                cssclass: cssclass
                             }
                         }
                     },
@@ -55,7 +57,8 @@ module.exports = {
                             user_id: user_id,
                             nome: user_name,
                             avatar: img64,
-                            text: message
+                            text: message,
+                            cssclass: cssclass
                         }
                     ]
                 });
@@ -149,7 +152,6 @@ module.exports = {
                         if(total_remove <= 0) return false;
                         doc.message.pull({"_id":item._id});
                         total_remove--;
-                        console.log(item.text);
                     });
 
                     doc.save();

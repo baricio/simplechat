@@ -46,39 +46,5 @@
         </div>
     </div>
 
-    <div id="boxadmin" ng-controller="AdminCtrl" ng-show="adminShow">
-        <a href="javascript:void(0)" ng-click="close()" class="close">Fechar</a>
-        <ul class="menu">
-            <li ng-click="tabCensura()" ng-class="{'active':showCensura}">Censurar palavras</li>
-            <li ng-click="tabBanir()" ng-class="{'active':showBanir}">Banir Usuário</li>
-        </ul>
-        <div class="censura" ng-show="showCensura" >
-            <form id="form_censura" ng-submit="submitCensura($event)" action="" >
-                <input ng-model="censura_palavra" />
-                <button class="enviar">Salvar</button>
-                <ul class="lista_censura">
-                    <li ng-repeat="item in lista_censura" class="active">
-                        {{item}}
-                        <a ng-click="removeCensura($event,item)" href="javascript:void(0)">remove</a>
-                    </li>
-                </ul>
-            </form>
-        </div>
-        <div class="banir" ng-show="showBanir">
-            <ul class="lista_banir">
-                <div>Lista de usuários</div>
-                <li ng-repeat="user in lista_banir" userid="{{user._id.user_id}}">
-                    {{user._id.nome}}<span><input type="button" name="banir" value="Banir" ng-click="banir($event, user)"></span>
-                </li>
-            </ul>
-            <ul class="lista_banidos">
-                <div>Lista de banidos</div>
-                <li ng-repeat="user in lista_banidos" userid="{{user.user_id}}">
-                    {{user.nome}}<span><input type="button" name="ativar" value="Ativar" ng-click="ativar($event, user)"></span>
-                </li>
-            </ul>
-        </div>
-    </div>
-
 </body>
 </html>

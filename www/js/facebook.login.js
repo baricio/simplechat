@@ -35,10 +35,10 @@ function Login()
     });
 }
 
-function getUserInfo() {
+function getUserInfo(site) {
 
     FB.api('/me', function(response) {
-        socket.emit('login', response);
+        emit('login',response);
     });
 
 }

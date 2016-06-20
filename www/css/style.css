@@ -7,6 +7,9 @@ body { font: 13px Helvetica, Arial; }
 }
 #form_message input { border: 0; padding: 10px; width: 90%; margin-right: .5%; height:100%;}
 #form_message button {  height: 100%; width: 10%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+#form_message button+button{
+    margin-left: 1%;
+}
 #messages { list-style-type: none; margin: 0; padding: 0; }
 #messages li { padding: 5px 10px; }
 #messages li:nth-child(odd) { background: #eee; }
