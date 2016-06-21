@@ -30,6 +30,7 @@ angular.module("controller", [])
 
     $rootScope.$on('openAdmin', function(event, data) {
         $scope.adminShow = !$scope.adminShow;
+        emit('getUsers', $scope.censura_palavra);
     });
 
 	$scope.tabCensura = function(){
@@ -47,6 +48,10 @@ angular.module("controller", [])
 		$scope.showCensura = false;
 		$scope.showBanir = true;
 	}
+
+    $scope.removeAdmin = function(user){
+        return (user._id.user_id > 0)
+    }
 
     $scope.removeCensura = function(event,palavra){
         $(event.currentTarget).parent().remove();
@@ -119,7 +124,14 @@ angular.module("controller", [])
     });
 
     socket.on('message', function(dados){
-        var msg = message(dados.user.avatar, dados.user.name, dados.message);
+        var msg = message(dados.user.avatar, dados.user.name, dados.message, dados.classe);
+        $scope.messages.push(msg);
+        $scope.$apply();
+        scroll();
+    });
+
+    socket.on('messageAdmin', function(dados){
+        var msg = message(dados.user.avatar, dados.user.name, dados.message, dados.classe);
         $scope.messages.push(msg);
         $scope.$apply();
         scroll();
@@ -129,7 +141,7 @@ angular.module("controller", [])
         if(svAdmin.usuarioBanido($scope.lista_banidos, $scope.user_id)){
             return false;
         }
-        $scope.messages.push(msg);
+        $scope.messages.push({text:msg,classe:"welcome"});
         scroll();
     });
 
@@ -149,8 +161,9 @@ angular.module("controller", [])
 
     socket.on('history', function(history){
         if(history){
+            $scope.messages = [];
             $.each(history.message,function(key,data){
-                $scope.messages.push(message(data.avatar, data.nome, data.text));
+                $scope.messages.push(message(data.avatar, data.nome, data.text, data.cssclass));
             });
             $scope.$apply();
             scroll();
@@ -192,7 +205,7 @@ angular.module("controller", [])
         }
 
         emit('message', {
-            class: 'user',
+            classe: 'user',
             message: $('#m').val(),
             id: $scope.user_id
         });
@@ -202,8 +215,8 @@ angular.module("controller", [])
     }
 
     var sendMessageAdmin = function(){
-        emit('message', {
-            class: 'admin',
+        emit('messageAdmin', {
+            classe: 'admin',
             message: $('#m').val(),
             id: 0
         });

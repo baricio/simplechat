@@ -36,7 +36,7 @@
 
         <div id="boxmessage">
             <ul id="messages">
-                <li ng-repeat="message in messages track by $index" ng-class="{{message.class}}" ng-bind-html="message | emoji" ></li>
+                <li ng-repeat="message in messages" class="{{message.classe}}" ng-bind-html="message.text | emoji" ></li>
             </ul>
             <form id="form_message" ng-submit="submitMessageAdmin($event)" action="" >
                 <i ng-click="showEmojis = !showEmojis" class="emoji emoji_smile" title=":smile:"></i>
@@ -68,7 +68,7 @@
         <div class="banir" ng-show="showBanir">
             <ul class="lista_banir">
                 <div>Lista de usuários</div>
-                <li ng-repeat="user in lista_banir" userid="{{user._id.user_id}}">
+                <li ng-repeat="user in lista_banir | filter: removeAdmin" userid="{{user._id.user_id}}">
                     {{user._id.nome}}<span><input type="button" name="banir" value="Banir" ng-click="banir($event, user)"></span>
                 </li>
             </ul>

@@ -8,9 +8,14 @@ function scroll(){
   box.scrollTop(height);
 }
 
-function message(avatar,name,message){
-    var img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
-    return img + name + ' diz: ' + message;
+function message(avatar,name,message,classe){
+	classe = typeof classe !== 'undefined' ?  classe : '';
+	var img = '';
+	if(avatar){
+		img = '<img alt="Embedded Image" src="data:image/png;base64,' + avatar +'">';
+	}
+
+    return {text: img + name + ' diz: ' + message, classe: classe};
 }
 
 function emit(ref,data){

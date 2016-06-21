@@ -34,7 +34,6 @@ app.get('/:site', function(req, res){
 app.get('/admin/:site', function(req, res){
     if(req.params.site){
         res.sendFile(__dirname + '/www/admin.html');
-        sendSite(req.params.site);
     }else{
         res.status(400);
         res.send('fail to load');
@@ -81,8 +80,6 @@ io.on('connection', function(socket){
     });
 
     socket.on('init', function(content){
-        console.log('init');
-        console.log(content);
         socket.join(content.site);
         getCensura(io,content.site);
         getUsers(io,content.site);
@@ -90,22 +87,24 @@ io.on('connection', function(socket){
         getMessages(io,socket,content.site);
     });
 
+    socket.on('getUsers', function(content){
+        getUsers(io,content.site);
+    });
+
     socket.on('messageAdmin', function(message){
         var dados = {};
 
-        var content = message.data;
-
-        dados.user = user[content.id];
-        dados.message = striptags(content.message);
-        dados.class = content.class;
-        io.sockets.in(message.site).emit('message', dados);
+        dados.user = {id:0, name: 'Administrador', avatar: ''};
+        dados.message = striptags(message.data.message);
+        dados.classe = message.data.classe;
+        io.sockets.in(message.site).emit('messageAdmin', dados);
         database.saveMessage(
             message.site,
-            content.id,
+            dados.user.id,
             dados.user.name,
             dados.user.avatar,
             dados.message,
-            dados.class,
+            dados.classe,
             function (err) {
                 if (err) {
                     console.log(err);
@@ -123,7 +122,7 @@ io.on('connection', function(socket){
 
         dados.user = user[content.id];
         dados.message = striptags(content.message);
-        dados.class = content.class;
+        dados.classe = content.classe;
         io.sockets.in(message.site).emit('message', dados);
         database.saveMessage(
             message.site,
@@ -131,7 +130,7 @@ io.on('connection', function(socket){
             dados.user.name,
             dados.user.avatar,
             dados.message,
-            dados.class,
+            dados.classe,
             function (err) {
                 if (err) {
                     console.log(err);

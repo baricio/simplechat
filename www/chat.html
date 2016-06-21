@@ -36,7 +36,7 @@
 
         <div id="boxmessage">
             <ul id="messages">
-                <li ng-repeat="message in messages track by $index" ng-bind-html="message | emoji" ></li>
+                <li ng-repeat="message in messages" class="{{message.classe}}" ng-bind-html="message.text | emoji" ></li>
             </ul>
             <form id="form_message" ng-submit="submitMessage($event)" action="" >
                 <i ng-click="showEmojis = !showEmojis" class="emoji emoji_smile" title=":smile:"></i>
